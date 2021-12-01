@@ -91,10 +91,6 @@ const formatMovementDate = function (date, locale) {
   if (daysPassed === 1) return 'Yesterday';
   if (daysPassed > 1 && daysPassed <= 7) return `${daysPassed} days ago`;
   else {
-    // const day = `${date.getDate()}`.padStart(2, 0);
-    // const month = `${date.getMonth() + 1}`.padStart(2, 0);
-    // const year = date.getFullYear();
-    // return `${day}/${month}/${year}`;
     return new Intl.DateTimeFormat(locale).format(date);
   }
 };
@@ -184,14 +180,29 @@ const updateUI = function (acc) {
   calcDisplaySummary(acc);
 };
 
+const startLogOutTimer = function () {
+  const tick = function () {
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);
+    const sec = String(time % 60).padStart(2, 0);
+    labelTimer.textContent = `${min}:${sec}`;
+
+    if (time === 0) {
+      clearInterval(timer);
+      labelWelcome.textContent = 'Login to get started';
+      containerApp.style.opacity = 0;
+    }
+    time--;
+  };
+
+  let time = 300;
+  tick();
+  const timer = setInterval(tick, 1000);
+  return timer;
+};
+
 ///////////////////////////////////////
 // Event handlers
-let currentAccount;
-
-//FAKE ALWAYS LOGGED IN
-currentAccount = account1;
-updateUI(currentAccount);
-containerApp.style.opacity = 100;
+let currentAccount, timer;
 
 btnLogin.addEventListener('click', function (e) {
   // Prevent form from submitting
@@ -208,15 +219,6 @@ btnLogin.addEventListener('click', function (e) {
       currentAccount.owner.split(' ')[0]
     }`;
     containerApp.style.opacity = 100;
-
-    //Create current date
-    // const now = new Date();
-    // const day = `${now.getDate()}`.padStart(2, '0');
-    // const month = `${now.getMonth() + 1}`.padStart(2, '0');
-    // const year = now.getFullYear();
-    // const hour = `${now.getHours()}`.padStart(2, '0');
-    // const min = `${now.getMinutes()}`.padStart(2, '0');
-    // labelDate.textContent = `${day}/${month}/${year}, ${hour}:${min}`;
 
     //DATE INTERNATIONAL FORMAT
     const now = new Date();
@@ -241,6 +243,8 @@ btnLogin.addEventListener('click', function (e) {
     inputLoginUsername.value = inputLoginPin.value = '';
     inputLoginPin.blur();
 
+    if (timer) clearInterval(timer);
+    timer = startLogOutTimer();
     // Update UI
     updateUI(currentAccount);
   }
@@ -270,6 +274,10 @@ btnTransfer.addEventListener('click', function (e) {
 
     // Update UI
     updateUI(currentAccount);
+
+    //Reset timer
+    clearInterval(timer);
+    timer = startLogOutTimer();
   }
 });
 
@@ -279,14 +287,19 @@ btnLoan.addEventListener('click', function (e) {
   const amount = Math.floor(inputLoanAmount.value);
 
   if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
-    // Add movement
-    currentAccount.movements.push(amount);
+    setTimeout(function () {
+      // Add movement
+      currentAccount.movements.push(amount);
 
-    //Add loan date
-    currentAccount.movementsDates.push(new Date().toISOString());
+      //Add loan date
+      currentAccount.movementsDates.push(new Date().toISOString());
 
-    // Update UI
-    updateUI(currentAccount);
+      // Update UI
+      updateUI(currentAccount);
+    }, 2500);
+    //Reset timer
+    clearInterval(timer);
+    timer = startLogOutTimer();
   }
   inputLoanAmount.value = '';
 });
@@ -325,45 +338,56 @@ btnSort.addEventListener('click', function (e) {
 /////////////////////////////////////////////////
 // LECTURES
 
-labelBalance.addEventListener('click', function () {
-  [...document.querySelectorAll('.movements__row')].forEach(function (row, i) {
-    if (i % 2 === 0) row.style.backgroundColor = 'orangered';
-  });
-});
+// labelBalance.addEventListener('click', function () {
+//   [...document.querySelectorAll('.movements__row')].forEach(function (row, i) {
+//     if (i % 2 === 0) row.style.backgroundColor = 'orangered';
+//   });
+// });
 
-const randomInt = (min, max) =>
-  Math.trunc(Math.random() * (max - min) + 1) + min;
+// const randomInt = (min, max) =>
+//   Math.trunc(Math.random() * (max - min) + 1) + min;
 
-console.log(randomInt(10, 20));
+// console.log(randomInt(10, 20));
 
-console.log((2.7).toFixed(0));
-console.log((2.7).toFixed(3));
+// console.log((2.7).toFixed(0));
+// console.log((2.7).toFixed(3));
 
-console.log((2.4).toFixed(1));
+// console.log((2.4).toFixed(1));
 
-console.log(8 % 3);
+// console.log(8 % 3);
 
-console.log(10 % 3);
+// console.log(10 % 3);
 
-console.log(BigInt(432987));
-console.log(new Date());
-console.log(new Date('December 1, 2018'));
-console.log(new Date('December 3 2018'));
-console.log(new Date(2020, 11, 11, 13, 39, 45));
+// console.log(BigInt(432987));
+// console.log(new Date());
+// console.log(new Date('December 1, 2018'));
+// console.log(new Date('December 3 2018'));
+// console.log(new Date(2020, 11, 11, 13, 39, 45));
 
-const future = new Date(2037, 10, 19, 15, 37, 32);
-console.log(future);
-console.log(future.getFullYear());
-console.log(future.getDay());
-console.log(future.toISOString());
-console.log(future.getTime());
-console.log(new Date(2142257852000));
+// const future = new Date(2037, 10, 19, 15, 37, 32);
+// console.log(future);
+// console.log(future.getFullYear());
+// console.log(future.getDay());
+// console.log(future.toISOString());
+// console.log(future.getTime());
+// console.log(new Date(2142257852000));
 
-const calcPassed = (date1, date2) => Math.abs(date1 - date2);
+// const calcPassed = (date1, date2) => Math.abs(date1 - date2);
 
-const days1 = calcPassed(new Date(2037, 3, 14), new Date(2021, 5, 4));
+// const days1 = calcPassed(new Date(2037, 3, 14), new Date(2021, 5, 4));
 
-console.log(days1);
+// console.log(days1);
 
-const calcDays = days1 / (1000 * 60 * 60 * 24);
-console.log(calcDays);
+// const calcDays = days1 / (1000 * 60 * 60 * 24);
+// console.log(calcDays);
+
+// const nowTimer = new Date();
+// console.log(nowTimer);
+// const hourTimer = nowTimer.getHours();
+// const minutesTimer = nowTimer.getMinutes();
+// const secondsTimer = nowTimer.getSeconds();
+
+// const timer2 = `${hourTimer}:${minutesTimer}:${secondsTimer}`;
+// console.log(timer2);
+
+// setInterval(() => console.log(timer), 1000);
